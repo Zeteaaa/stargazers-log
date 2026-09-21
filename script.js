@@ -1,10 +1,27 @@
+const list = document.querySelector("#starred");
+
 fetch("events.json")
-  .then((response) => response.json())
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(`Unable to load starred repositories (${response.status})`);
+    }
+    return response.json();
+  })
   .then((events) => {
-    const list = document.querySelector("#starred");
     events.forEach((event) => {
       const item = document.createElement("li");
-      item.textContent = `${event.name} — starred ${event.starred}`;
+      const repository = document.createElement("a");
+      const date = document.createElement("time");
+
+      repository.href = event.url;
+      repository.textContent = event.name;
+      date.dateTime = event.starred;
+      date.textContent = ` — starred ${event.starred}`;
+
+      item.append(repository, date);
       list.appendChild(item);
     });
+  })
+  .catch((error) => {
+    list.innerHTML = `<li>${error.message}</li>`;
   });
